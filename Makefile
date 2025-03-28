@@ -14,9 +14,9 @@ iso: ${CUESHEET}
 chd: ${CHD}
 
 run: ${CUESHEET}
-	pcsx-redux-appimage \
-		-run -interpreter -fastboot -stdout \
-		-iso "$<"
+	pcsx-redux \
+	-run -interpreter -fastboot -stdout \
+	-iso "$<"
 
 ./build: configure
 
