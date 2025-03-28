@@ -8,6 +8,7 @@ project(PSXGame
 
 file(GLOB PSXGAME_SRC
   ${CMAKE_CURRENT_LIST_DIR}/src/*.c
+  ${CMAKE_CURRENT_LIST_DIR}/src/screen/*.c
   ${CMAKE_CURRENT_LIST_DIR}/src/*.s)
 
 list(APPEND CMAKE_MODULE_PATH
