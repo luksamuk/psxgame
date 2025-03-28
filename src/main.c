@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include <psxcd.h>
 
 #include "render.h"
 #include "input.h"
@@ -11,6 +12,7 @@ main(void)
     render_init();
     pad_init();
     screen_init();
+    CdInit();
     printf("Hello world! From console\n");
 
     screen_change(SCREEN_MAINMENU);
