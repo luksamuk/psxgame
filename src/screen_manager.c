@@ -1,5 +1,6 @@
 #include "screen_manager.h"
 #include "memalloc.h"
+#include "render.h"
 
 #include <stdint.h>
 
@@ -19,10 +20,20 @@ screen_init()
     alloc_arena_init(&screen_arena, screen_data, SCREEN_BUFFER_LENGTH);
 }
 
+static void
+_render_loading_text()
+{
+    set_clear_color(0, 0, 0);
+    swap_buffers();
+    force_clear();
+    draw_text(208, 220, 0, "Now Loading...");
+    swap_buffers();
+}
+
 void
 screen_change(ScreenIndex src)
 {
-    // TODO: Render a "Loading..." text
+    _render_loading_text();
     if(current_screen >= 0)
         screen_unload();
     current_screen = src;
