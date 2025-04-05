@@ -2,6 +2,7 @@
 #include "render.h"
 #include "input.h"
 #include "util.h"
+#include "timer.h"
 
 #include "screen_manager.h"
 #include "screen/mainmenu.h"
@@ -35,9 +36,11 @@ screen_mainmenu_update(void *d)
     snprintf(data->text_buffer, 256,
              "Hello, world!\n"
              "Counter: %d\n"
-             "Git commit ref: %s",
+             "Git commit ref: %s\n"
+             "FPS: %02d",
              data->counter,
-             GIT_COMMIT);
+             GIT_COMMIT,
+             get_frame_rate());
 }
 
 void
