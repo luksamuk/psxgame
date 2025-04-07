@@ -23,6 +23,7 @@ void
 screen_mainmenu_unload(void *d)
 {
     mainmenu_data *data = (mainmenu_data *)d;
+    screen_free();
 }
 
 void
