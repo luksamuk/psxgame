@@ -37,4 +37,6 @@ uint32_t *get_ot_at(uint32_t otz);
 
 void draw_text(int x, int y, int z, const char *text);
 
+RECT *render_get_buffer_clip();
+
 #endif

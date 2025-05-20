@@ -123,3 +123,8 @@ draw_text(int x, int y, int z, const char *text)
     assert(ctx.next_packet <= &ctx.buffers[ctx.active_buffer].buffer[BUFFER_LENGTH]);
 }
 
+RECT *
+render_get_buffer_clip()
+{
+    return &ctx.buffers[ctx.active_buffer].draw_env.clip;
+}
