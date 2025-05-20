@@ -6,6 +6,7 @@
 #include "input.h"
 #include "screen_manager.h"
 #include "timer.h"
+#include "cdda.h"
 
 uint8_t paused = 0;
 
@@ -17,6 +18,8 @@ main(void)
     pad_init();
     screen_init();
     timer_init();
+    cdda_init();
+
     printf("Hello world! From console\n");
 
     screen_change(SCREEN_MAINMENU);

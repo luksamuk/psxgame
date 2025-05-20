@@ -5,12 +5,13 @@
 #include "input.h"
 #include "util.h"
 #include "timer.h"
+#include "cdda.h"
 
 #include "screen_manager.h"
 #include "screen/mainmenu.h"
 
 // Color palette definitions
-#define STEPS_PER_COLOR 7
+#define STEPS_PER_COLOR 8
 #define NUM_COLORS      5
 
 #define BLACK    0x000000
@@ -22,9 +23,9 @@
 #define PALETTE_SIZE (STEPS_PER_COLOR * (NUM_COLORS - 1)) + 1
 
 // Fire array definitions
-#define FIRE_BLOCK_SIZE 2
+#define FIRE_BLOCK_SIZE 1
 #define FIRE_ARRAY_WIDTH 20
-#define FIRE_ARRAY_HEIGHT 80
+#define FIRE_ARRAY_HEIGHT 90
 #define FIRE_ARRAY_SIZE (FIRE_ARRAY_WIDTH * FIRE_ARRAY_HEIGHT)
 
 // Color constants
@@ -97,7 +98,10 @@ generate_palette(uint32_t *palette)
 
 typedef struct {
     uint32_t num_tiles;
-    int32_t   text_y;
+    int32_t   logo_vy;
+    int16_t   logo_x;
+    uint8_t   logo_w;
+    uint8_t   logo_h;
     uint8_t   toggle_fire;
     uint8_t   toggle_palette;
     uint8_t   toggle_hud;
@@ -131,7 +135,7 @@ set_fire(mainmenu_data *data, int state)
 void
 draw_palette(uint32_t *palette)
 {
-    int16_t y = 50;
+    int16_t y = 60;
     int16_t x = 10;
     for(int16_t i = 0; i < PALETTE_SIZE; i++) {
         TILE_8* tile = get_next_prim();
@@ -250,6 +254,23 @@ draw_fire_array(mainmenu_data *data)
     sort_prim(tpage, 0);
 }
 
+// =========
+// Doom logo
+// =========
+
+void
+draw_logo(mainmenu_data *data)
+{
+    POLY_FT4 *poly = (POLY_FT4 *)get_next_prim();
+    increment_prim(sizeof(POLY_FT4));
+    setPolyFT4(poly);
+    setXYWH(poly, data->logo_x, data->logo_vy >> 12, data->logo_w, data->logo_h);
+    setUVWH(poly, 0, 0, data->logo_w, data->logo_h);
+    setRGB0(poly, 128, 128, 128);
+    setTPage(poly, 2, 0, 320, 256); // Manual input
+    sort_prim(poly, 1);
+}
+
 // ===========================
 // Main Menu vanilla functions
 // ===========================
@@ -260,7 +281,6 @@ screen_mainmenu_load()
     srand(get_global_frames());
     mainmenu_data *data = screen_alloc(sizeof(mainmenu_data));
     generate_palette(data->palette);
-    data->text_y = (SCREEN_YRES + CENTERY) << 12; // 1/2 screen below limit
 
     data->toggle_fire = 1;
     data->toggle_palette = 0;
@@ -271,13 +291,32 @@ screen_mainmenu_load()
 
     // Fill last line with last color
     set_fire(data, 1);
+
+    // Load logo
+    uint32_t file_length;
+    TIM_IMAGE tim;
+    uint8_t *file = file_read("\\DOOM.TIM;1", &file_length);
+    if(file) {
+        load_texture(file, &tim);
+        free(file);
+
+        data->logo_x  = (SCREEN_XRES - tim.prect->w) >> 1;
+        data->logo_vy = (SCREEN_YRES + CENTERY) << 12;
+        data->logo_w  = tim.prect->w;
+        data->logo_h  = tim.prect->h;
+    }
+
+    cdda_play_track(1);
 }
 
 void
 screen_mainmenu_unload(void *d)
 {
     mainmenu_data *data = (mainmenu_data *)d;
+    (void)data;
+
     screen_free();
+    cdda_stop();
 }
 
 void
@@ -319,8 +358,8 @@ screen_mainmenu_update(void *d)
     }
 
     // Raise text
-    if(data->text_y > (CENTERY) << 12) {
-        data->text_y -= ONE;
+    if(data->logo_vy > (CENTERY >> 1) << 12) {
+        data->logo_vy -= ONE >> 1;
     }
 }
 
@@ -334,13 +373,14 @@ screen_mainmenu_draw(void *d)
         snprintf(data->text_buffer, 256,
                  "Commit:    %s\n"
                  "FPS:       %02d\n"
-                 "Particles: %d",
+                 "Particles: %d\n"
+                 "Song: Doom intro by Sonic Clang",
                  GIT_COMMIT,
                  get_frame_rate(),
                  data->num_tiles);
     }
 
-    draw_text(124, data->text_y >> 12, 1, "Hello world!");
+    draw_logo(data);
     if(data->toggle_palette) draw_palette(data->palette);
     draw_fire_array(data);
 }
