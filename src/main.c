@@ -18,6 +18,7 @@ main(void)
     pad_init();
     screen_init();
     timer_init();
+    SpuInit();
     cdda_init();
 
     printf("Hello world! From console\n");
